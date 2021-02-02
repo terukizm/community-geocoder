@@ -1,5 +1,7 @@
 import chai from 'chai';
 const assert = chai.assert;
+import fs from 'fs'
+import path from 'path'
 
 import util from '../src/imi-enrichment-address/lib/util'
 import find from '../src/imi-enrichment-address/lib/find'
@@ -292,4 +294,41 @@ describe('Tests for `src/imi-enrichment-address/lib/find.js`.', () => {
     assert.deepEqual('131010049003', res.code)
     assert.deepEqual('', res.tail) // 内部的に `之` を `の` に変換
   })
+})
+
+// describe('Tests for `src/imi-enrichment-address/lib/find.js` with address list.', () => {
+//   const data = fs.readFileSync(path.join(path.dirname(__filename), '/kyoto.txt'), {encoding: 'utf-8'}).split(/\n/)
+//   for (let i = 0; i < data.length; i++) {
+//     if (data[i]) {
+//       it(`should find the address "${data[i]}" as expected.`, () => {
+//         const res = find(util.normalize(data[i]))
+//         assert.isTrue(12 == res.code.length)
+//       });
+//     }
+//   }
+// })
+
+// 2021/02/02
+// $ cd community-geocoder/test 
+// $ find ~/goto-eater-data/data/input/csvs -type f -name "*.csv" -print0 | xargs -0 -I {} csvcut -c address -d "," -q \" {} | grep -v "address" | sed -e 's/"//g' | sort -u > gte-addresses.txt
+// $ cat gte-addresses.txt | wc -l
+// 209333
+// $ npm run test | grep ") should find the address" > gte-addresses-error.log
+
+/*
+209333 input
+11554 failing
+
+= (209333-11554)/209333*100 = 94.48%
+*/
+describe('Tests for `src/imi-enrichment-address/lib/find.js` with address list.', () => {
+  const data = fs.readFileSync(path.join(path.dirname(__filename), '/gte-addresses.txt'), {encoding: 'utf-8'}).split(/\n/)
+  for (let i = 0; i < data.length; i++) {
+    if (data[i]) {
+      it(`should find the address "${data[i]}" as expected.`, () => {
+        const res = find(util.normalize(data[i]))
+        assert.isTrue(12 == res.code.length)
+      });
+    }
+  }
 })
