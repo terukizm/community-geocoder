@@ -292,4 +292,40 @@ describe('Tests for `src/imi-enrichment-address/lib/find.js`.', () => {
     assert.deepEqual('131010049003', res.code)
     assert.deepEqual('', res.tail) // 内部的に `之` を `の` に変換
   })
+
+// describe('Tests for `src/imi-enrichment-address/lib/find.js` with address list.', () => {
+//   const data = fs.readFileSync(path.join(path.dirname(__filename), '/kyoto.txt'), {encoding: 'utf-8'}).split(/\n/)
+//   for (let i = 0; i < data.length; i++) {
+//     if (data[i]) {
+//       it(`should find the address "${data[i]}" as expected.`, () => {
+//         const res = find(util.normalize(data[i]))
+//         assert.isTrue(12 == res.code.length)
+//       });
+//     }
+//   }
+// })
+
+// 2020/12/20
+// $ find data/input/csvs -type f -name "*.csv" -print0 | xargs -0 -I {} sh -c 'csvcut -c address -d "," -q \" {}' | sed -e 's/"//g' | sort | uniq -u > gte-addresses.txt
+// $ cat gte-addresses.txt| wc -l
+// 163336
+// $ npm run test | grep ") should find the address" > gte-addresses-error.log
+/*
+in: 163336
+
+157363 passing (4m)
+6018 failing
+
+= 157363/163336*100 = 96.343%
+*/
+describe('Tests for `src/imi-enrichment-address/lib/find.js` with address list.', () => {
+  const data = fs.readFileSync(path.join(path.dirname(__filename), '/gte-addresses.txt'), {encoding: 'utf-8'}).split(/\n/)
+  for (let i = 0; i < data.length; i++) {
+    if (data[i]) {
+      it(`should find the address "${data[i]}" as expected.`, () => {
+        const res = find(util.normalize(data[i]))
+        assert.isTrue(12 == res.code.length)
+      });
+    }
+  }
 })
